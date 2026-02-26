@@ -1,0 +1,18 @@
+cd site_pelada
+python manage.py sync_ranking --file ..\pelada_ranking.xlsx
+
+cd "C:\Users\breno\OneDrive\Desktop\Site - Pelada\site_pelada"
+python manage.py runserver
+
+python manage.py sync_ranking --file pelada_ranking.xlsx
+
+python site_pelada\manage.py sync_ranking --file pelada_ranking.xlsx
+cd "C:\Users\breno\OneDrive\Desktop\Site - Pelada\site_pelada"
+python manage.py sync_ranking --file .\pelada_ranking.xlsx
+
+cd "C:\Users\breno\OneDrive\Desktop\Site - Pelada\site_pelada"
+.\.venv\Scripts\Activate
+
+Backend: http://127.0.0.1:8000/api/v1/ranking
+
+Front: http://localhost:5173
