@@ -65,9 +65,17 @@ export default function App() {
     <div style={pageStyle}>
       <div style={centerWrapStyle}>
         <div style={headerStyle}>
-          <img src={logoEsq} alt="Logo esquerda" style={{ height: 135, width: "auto" }} />
+          <img
+            src={logoEsq}
+            alt="Logo esquerda"
+            style={{ height: 135, width: "auto" }}
+          />
           <h1 style={titleStyle}>PELADA DOS ABESTALHADOS</h1>
-          <img src={logoDir} alt="Logo direita" style={{ height: 200, width: "auto" }} />
+          <img
+            src={logoDir}
+            alt="Logo direita"
+            style={{ height: 200, width: "auto" }}
+          />
         </div>
 
         <div style={searchRowStyle}>
@@ -84,66 +92,69 @@ export default function App() {
 
         {err && <div style={errorStyle}>Erro: {err}</div>}
 
+        {/* ===== TABELA (com scroll horizontal no mobile) ===== */}
         <div style={tableWrapStyle}>
-          <table width="100%" cellPadding="0" cellSpacing="0">
-            <thead style={{ background: "#fafafa" }}>
-              <tr>
-                <th style={thStyle}>#</th>
-                {columns.map((c) => (
-                  <th
-                    key={c.key}
-                    style={{
-                      ...thStyle,
-                      cursor: "pointer",
-                      textAlign: c.numeric ? "right" : "left",
-                    }}
-                    onClick={() => onClickHeader(c.key)}
-                    title="Clique para ordenar"
-                  >
-                    {c.label}{" "}
-                    {orderBy === c.key ? (
-                      <span style={{ fontSize: 12 }}>
-                        {orderDir === "desc" ? "▼" : "▲"}
-                      </span>
-                    ) : null}
-                  </th>
-                ))}
-              </tr>
-            </thead>
+          <div style={tableScrollStyle}>
+            <table style={tableStyle} cellPadding="0" cellSpacing="0">
+              <thead style={{ background: "#fafafa" }}>
+                <tr>
+                  <th style={thStyle}>#</th>
+                  {columns.map((c) => (
+                    <th
+                      key={c.key}
+                      style={{
+                        ...thStyle,
+                        cursor: "pointer",
+                        textAlign: c.numeric ? "right" : "left",
+                      }}
+                      onClick={() => onClickHeader(c.key)}
+                      title="Clique para ordenar"
+                    >
+                      {c.label}{" "}
+                      {orderBy === c.key ? (
+                        <span style={{ fontSize: 12 }}>
+                          {orderDir === "desc" ? "▼" : "▲"}
+                        </span>
+                      ) : null}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
 
-            <tbody>
-              {loading ? (
-                <tr>
-                  <td style={tdStyle} colSpan={columns.length + 1}>
-                    Carregando...
-                  </td>
-                </tr>
-              ) : rows.length === 0 ? (
-                <tr>
-                  <td style={tdStyle} colSpan={columns.length + 1}>
-                    Sem dados.
-                  </td>
-                </tr>
-              ) : (
-                rows.map((r, i) => (
-                  <tr key={r.id} style={{ borderTop: "1px solid #eee" }}>
-                    <td style={{ ...tdStyle, color: "#666" }}>{i + 1}</td>
-                    <td style={tdStyle}>{r.nome}</td>
-                    <td style={{ ...tdStyle, textAlign: "right" }}>{r.gols}</td>
-                    <td style={{ ...tdStyle, textAlign: "right" }}>
-                      {r.partidas_jogadas}
-                    </td>
-                    <td style={{ ...tdStyle, textAlign: "right" }}>
-                      {r.partidas_vencidas}
-                    </td>
-                    <td style={{ ...tdStyle, textAlign: "right" }}>
-                      {Number(r.pct_vitorias).toFixed(2)}%
+              <tbody>
+                {loading ? (
+                  <tr>
+                    <td style={tdStyle} colSpan={columns.length + 1}>
+                      Carregando...
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                ) : rows.length === 0 ? (
+                  <tr>
+                    <td style={tdStyle} colSpan={columns.length + 1}>
+                      Sem dados.
+                    </td>
+                  </tr>
+                ) : (
+                  rows.map((r, i) => (
+                    <tr key={r.id} style={{ borderTop: "1px solid #eee" }}>
+                      <td style={{ ...tdStyle, color: "#666" }}>{i + 1}</td>
+                      <td style={tdStyle}>{r.nome}</td>
+                      <td style={{ ...tdStyle, textAlign: "right" }}>{r.gols}</td>
+                      <td style={{ ...tdStyle, textAlign: "right" }}>
+                        {r.partidas_jogadas}
+                      </td>
+                      <td style={{ ...tdStyle, textAlign: "right" }}>
+                        {r.partidas_vencidas}
+                      </td>
+                      <td style={{ ...tdStyle, textAlign: "right" }}>
+                        {Number(r.pct_vitorias).toFixed(2)}%
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
 
         <div style={footerInfoStyle}>
@@ -182,11 +193,7 @@ const headerStyle = {
   justifyContent: "center",
   gap: 18,
   marginBottom: 16,
-};
-
-const logoStyle = {
-  height: 130,
-  width: "auto",
+  flexWrap: "wrap", // ajuda no mobile
 };
 
 const titleStyle = {
@@ -203,6 +210,7 @@ const searchRowStyle = {
   alignItems: "center",
   gap: 12,
   marginBottom: 14,
+  flexWrap: "wrap", // ajuda no mobile
 };
 
 const inputStyle = {
@@ -221,12 +229,29 @@ const buttonStyle = {
   cursor: "pointer",
 };
 
+/* wrapper do card */
 const tableWrapStyle = {
   width: "100%",
   maxWidth: 700,
   border: "1px solid #eee",
   borderRadius: 12,
-  overflow: "hidden",
+  background: "#fff",
+};
+
+/* scroll horizontal no mobile */
+const tableScrollStyle = {
+  width: "100%",
+  overflowX: "auto",
+  overflowY: "hidden",
+  WebkitOverflowScrolling: "touch",
+};
+
+/* tabela maior que a tela -> dá pra arrastar */
+const tableStyle = {
+  width: "100%",
+  minWidth: 980, // aumenta/diminui aqui (720, 900, 1100...)
+  borderCollapse: "separate",
+  borderSpacing: 0,
 };
 
 const thStyle = {
@@ -234,11 +259,13 @@ const thStyle = {
   fontWeight: 700,
   fontSize: 14,
   borderBottom: "1px solid #eee",
+  whiteSpace: "nowrap",
 };
 
 const tdStyle = {
   padding: "12px 12px",
   fontSize: 14,
+  whiteSpace: "nowrap",
 };
 
 const footerInfoStyle = {
@@ -254,18 +281,4 @@ const errorStyle = {
   background: "#f8d7da",
   borderRadius: 10,
   marginBottom: 12,
-};
-
-const tableScrollStyle = {
-  width: "100%",
-  overflowX: "auto",
-  overflowY: "hidden",
-  WebkitOverflowScrolling: "touch",
-};
-
-const tableStyle = {
-  width: "100%",
-  minWidth: 980, // <-- aqui você aumenta a tabela pro celular
-  borderCollapse: "separate",
-  borderSpacing: 0,
 };
