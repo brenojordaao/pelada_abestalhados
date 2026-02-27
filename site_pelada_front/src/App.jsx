@@ -250,7 +250,7 @@ const tableScrollStyle = {
 /* tabela maior que a tela -> dá pra arrastar */
 const tableStyle = {
   width: "100%",
-  minWidth: 720, // bem menor agora
+  minWidth: 620, // bem menor agora
   borderCollapse: "collapse",
 };
 
