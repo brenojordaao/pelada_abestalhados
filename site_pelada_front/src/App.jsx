@@ -255,3 +255,17 @@ const errorStyle = {
   borderRadius: 10,
   marginBottom: 12,
 };
+
+const tableScrollStyle = {
+  width: "100%",
+  overflowX: "auto",
+  overflowY: "hidden",
+  WebkitOverflowScrolling: "touch",
+};
+
+const tableStyle = {
+  width: "100%",
+  minWidth: 980, // <-- aqui você aumenta a tabela pro celular
+  borderCollapse: "separate",
+  borderSpacing: 0,
+};
