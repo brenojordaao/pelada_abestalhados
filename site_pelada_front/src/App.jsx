@@ -147,7 +147,11 @@ export default function App() {
                         {r.partidas_vencidas}
                       </td>
                       <td style={{ ...tdStyle, textAlign: "right" }}>
-                        {Number(r.pct_vitorias).toFixed(2)}%
+                        {(
+                          Number(r.pct_vitorias) <= 1
+                            ? Number(r.pct_vitorias) * 100
+                            : Number(r.pct_vitorias)
+                        ).toFixed(2)}%
                       </td>
                     </tr>
                   ))
