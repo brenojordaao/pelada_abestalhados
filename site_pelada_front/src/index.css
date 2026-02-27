@@ -72,3 +72,20 @@ table, th, td {
 thead th {
   color: #111827;
 }
+
+.tableScroll {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch; /* scroll suave no iPhone */
+}
+
+.rankingTable {
+  width: 100%;
+  min-width: 720px; /* força ficar “larga” e habilita scroll */
+  border-collapse: collapse;
+}
+
+.rankingTable th,
+.rankingTable td {
+  white-space: nowrap; /* não quebra texto */
+}
