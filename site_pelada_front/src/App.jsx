@@ -244,14 +244,14 @@ const tableScrollStyle = {
   overflowX: "auto",
   overflowY: "hidden",
   WebkitOverflowScrolling: "touch",
+  scrollbarWidth: "thin",
 };
 
 /* tabela maior que a tela -> dá pra arrastar */
 const tableStyle = {
   width: "100%",
-  minWidth: 980, // aumenta/diminui aqui (720, 900, 1100...)
-  borderCollapse: "separate",
-  borderSpacing: 0,
+  minWidth: 720, // bem menor agora
+  borderCollapse: "collapse",
 };
 
 const thStyle = {
