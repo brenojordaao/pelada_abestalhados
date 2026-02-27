@@ -1,81 +1,130 @@
-from django.core.management.base import BaseCommand, CommandError
-from django.db import transaction
+from decimal import Decimal, InvalidOperation
 from pathlib import Path
-import openpyxl
+
+from django.core.management.base import BaseCommand, CommandError
+from openpyxl import load_workbook
 
 from pelada.models import PlayerStat
 
 
+def to_int(value, field_name: str) -> int:
+    if value is None or value == "":
+        return 0
+    try:
+        return int(float(value))
+    except (ValueError, TypeError):
+        raise CommandError(f"Valor inválido para {field_name}: {value!r}")
+
+
+def to_decimal_pct(value) -> Decimal:
+    if value is None or value == "":
+        return Decimal("0")
+
+    if isinstance(value, str):
+        value = value.strip().replace("%", "").replace(",", ".")
+
+    try:
+        d = Decimal(str(value))
+    except (InvalidOperation, ValueError):
+        raise CommandError(f"Valor inválido para pct_vitorias: {value!r}")
+
+    if d <= 1 and d != 0:
+        d = d * Decimal("100")
+
+    if d < 0:
+        d = Decimal("0")
+    if d > 100:
+        d = Decimal("100")
+
+    return d.quantize(Decimal("0.01"))
+
+
 class Command(BaseCommand):
-    help = "Sincroniza o ranking a partir da planilha Excel (modo espelho: apaga tudo e recria)."
+    help = "Sincroniza o ranking a partir de um arquivo .xlsx (aba 'ranking')."
 
     def add_arguments(self, parser):
-        parser.add_argument(
-            "--file",
-            type=str,
-            required=True,
-            help="Caminho para o arquivo .xlsx",
-        )
+        parser.add_argument("--file", required=True)
+        parser.add_argument("--sheet", default="ranking")
+        parser.add_argument("--clear-missing", action="store_true")
 
     def handle(self, *args, **options):
-        file_path = Path(options["file"])
+        file_path = Path(options["file"]).expanduser().resolve()
+        sheet_name = options["sheet"]
+        clear_missing = options["clear_missing"]
 
         if not file_path.exists():
             raise CommandError(f"Arquivo não encontrado: {file_path}")
 
-        try:
-            wb = openpyxl.load_workbook(file_path, data_only=True)
-        except Exception as e:
-            raise CommandError(f"Erro ao abrir Excel: {e}")
+        wb = load_workbook(filename=str(file_path), data_only=True)
+        if sheet_name not in wb.sheetnames:
+            raise CommandError(f"Aba '{sheet_name}' não encontrada.")
 
-        ws = wb.worksheets[0]
+        ws = wb[sheet_name]
 
         header = [
-            str(c.value).strip().lower() if c.value else ""
-            for c in ws[1]
+            (str(cell.value).strip().lower() if cell.value else "")
+            for cell in ws[1]
         ]
 
-        def find_col(name):
-            return header.index(name) if name in header else None
+        required = [
+            "nome",
+            "gols",
+            "partidas_jogadas",
+            "partidas_vencidas",
+            "pct_vitorias",
+        ]
 
-        col_nome = find_col("nome")
-        col_gols = find_col("gols")
-        col_jogos = find_col("partidas_jogadas")
-        col_vit = find_col("partidas_vencidas")
-        col_pct = find_col("pct_vitorias")
+        for col in required:
+            if col not in header:
+                raise CommandError(f"Coluna obrigatória ausente: {col}")
 
-        if None in [col_nome, col_gols, col_jogos, col_vit, col_pct]:
-            raise CommandError("Verifique os nomes das colunas no Excel.")
+        idx = {name: header.index(name) for name in required}
 
-        novos_registros = []
+        created = updated = skipped = 0
+        nomes_na_planilha = set()
 
         for row in ws.iter_rows(min_row=2, values_only=True):
-            if not row or not row[col_nome]:
-                continue
-            
-            pct_raw = row[col_pct] or 0
-        pct_val = float(pct_raw)
-        if 0 < pct_val <= 1:
-            pct_val *= 100
-        pct_val = round(pct_val, 2)
+            nome_raw = row[idx["nome"]]
 
-        novos_registros.append(
-                PlayerStat(
-                    nome=str(row[col_nome]).strip(),
-                    gols=int(row[col_gols] or 0),
-                    partidas_jogadas=int(row[col_jogos] or 0),
-                    partidas_vencidas=int(row[col_vit] or 0),
-                    pct_vitorias=float(row[col_pct] or 0),
+            if not nome_raw:
+                skipped += 1
+                continue
+
+            nome = str(nome_raw).strip()
+            nomes_na_planilha.add(nome.lower())
+
+            gols = to_int(row[idx["gols"]], "gols")
+            partidas_jogadas = to_int(row[idx["partidas_jogadas"]], "partidas_jogadas")
+            partidas_vencidas = to_int(row[idx["partidas_vencidas"]], "partidas_vencidas")
+            pct_vitorias = to_decimal_pct(row[idx["pct_vitorias"]])
+
+            if partidas_vencidas > partidas_jogadas:
+                raise CommandError(
+                    f"Inconsistência: {nome} tem mais vitórias do que partidas."
                 )
+
+            _, is_created = PlayerStat.objects.update_or_create(
+                nome=nome,
+                defaults={
+                    "gols": gols,
+                    "partidas_jogadas": partidas_jogadas,
+                    "partidas_vencidas": partidas_vencidas,
+                    "pct_vitorias": pct_vitorias,
+                },
             )
 
-        # 🔥 ESPELHO TOTAL
-        with transaction.atomic():
-            PlayerStat.objects.all().delete()
-            PlayerStat.objects.bulk_create(novos_registros)
+            if is_created:
+                created += 1
+            else:
+                updated += 1
+
+        if clear_missing:
+            for obj in PlayerStat.objects.all():
+                if obj.nome.lower() not in nomes_na_planilha:
+                    obj.delete()
 
         self.stdout.write(
             self.style.SUCCESS(
-                f"Sincronização concluída. {len(novos_registros)} jogadores importados."
+                f"Sync concluído. created={created} updated={updated} skipped={skipped}"
             )
         )
