@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import logoEsq from "./assets/logo-esq.png";
 import logoDir from "./assets/logo-dir.png";
 
-const API_BASE = "http://127.0.0.1:8000/api/v1";
+const API_BASE = "https://pelada-abestalhados.onrender.com/api/v1";
 
 const columns = [
   { key: "nome", label: "Nome" },
