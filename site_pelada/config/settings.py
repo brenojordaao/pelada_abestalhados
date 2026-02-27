@@ -29,6 +29,9 @@ DEBUG = True
 ALLOWED_HOSTS = ['https://pelada-abestalhados.onrender.com']
 CORS_ALLOW_ALL_ORIGINS = True
 
+ALLOWED_HOSTS = [
+    'pelada-abestalhados.onrender.com',
+]
 
 # Application definition
 
@@ -130,5 +133,5 @@ TIME_ZONE = 'America/Recife'
 LANGUAGE_CODE = 'pt-br'
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
+    'https://pelada-abestalhados.vercel.app',
 ]
