@@ -26,6 +26,7 @@ SECRET_KEY = 'django-insecure-*t5d0zkkt&@!c$kx3zog@ir6bnx5nvq46hwlzq(_exzoklb^(m
 DEBUG = True
 
 ALLOWED_HOSTS = ['.onrender.com']
+CORS_ALLOW_ALL_ORIGINS = True
 
 
 # Application definition
@@ -51,7 +52,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-CORS_ALLOW_ALL_ORIGINS = True
+
 ROOT_URLCONF = 'config.urls'
 
 TEMPLATES = [
