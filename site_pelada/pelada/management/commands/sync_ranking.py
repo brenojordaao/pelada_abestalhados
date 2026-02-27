@@ -52,8 +52,14 @@ class Command(BaseCommand):
         for row in ws.iter_rows(min_row=2, values_only=True):
             if not row or not row[col_nome]:
                 continue
+            
+            pct_raw = row[col_pct] or 0
+        pct_val = float(pct_raw)
+        if 0 < pct_val <= 1:
+            pct_val *= 100
+        pct_val = round(pct_val, 2)
 
-            novos_registros.append(
+        novos_registros.append(
                 PlayerStat(
                     nome=str(row[col_nome]).strip(),
                     gols=int(row[col_gols] or 0),
