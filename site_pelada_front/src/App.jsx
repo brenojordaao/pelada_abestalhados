@@ -85,31 +85,32 @@ export default function App() {
         {err && <div style={errorStyle}>Erro: {err}</div>}
 
         <div style={tableWrapStyle}>
-          <table width="100%" cellPadding="0" cellSpacing="0">
-            <thead style={{ background: "#fafafa" }}>
-              <tr>
-                <th style={thStyle}>#</th>
-                {columns.map((c) => (
-                  <th
-                    key={c.key}
-                    style={{
-                      ...thStyle,
-                      cursor: "pointer",
-                      textAlign: c.numeric ? "right" : "left",
-                    }}
-                    onClick={() => onClickHeader(c.key)}
-                    title="Clique para ordenar"
+          <div style={tableScrollStyle}></div>
+            <table style={tableStyle} cellPadding="0" cellSpacing="0">
+              <thead style={{ background: "#fafafa" }}>
+                <tr>
+                  <th style={thStyle}>#</th>
+                  {columns.map((c) => (
+                    <th
+                      key={c.key}
+                      style={{
+                        ...thStyle,
+                        cursor: "pointer",
+                        textAlign: c.numeric ? "right" : "left",
+                      }}
+                      onClick={() => onClickHeader(c.key)}
+                      title="Clique para ordenar"
                   >
-                    {c.label}{" "}
-                    {orderBy === c.key ? (
-                      <span style={{ fontSize: 12 }}>
-                        {orderDir === "desc" ? "▼" : "▲"}
-                      </span>
-                    ) : null}
-                  </th>
-                ))}
-              </tr>
-            </thead>
+                      {c.label}{" "}
+                      {orderBy === c.key ? (
+                        <span style={{ fontSize: 12 }}>
+                         {orderDir === "desc" ? "▼" : "▲"}
+                        </span>
+                      ) : null}
+                   </th>
+                 ))}
+                </tr>
+              </thead>
 
             <tbody>
               {loading ? (
