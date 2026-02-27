@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-*t5d0zkkt&@!c$kx3zog@ir6bnx5nvq46hwlzq(_exzoklb^(m
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['https://pelada-abestalhados.onrender.com']
+ALLOWED_HOSTS = ['.onrender.com']
 CORS_ALLOW_ALL_ORIGINS = True
 
 ALLOWED_HOSTS = [
